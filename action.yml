@@ -58,6 +58,14 @@ outputs:
     description: '"true" if any configured threshold was exceeded'
   storm-level:
     description: 'G-scale storm level (G0-G5) derived from Kp'
+  aurora-probability:
+    description: 'Aurora visibility probability at mid-latitudes (0-95%), derived from Kp and Bz'
+  latest-flare:
+    description: 'Latest flare class with flux value (e.g. "M2.4") if available, else class letter'
+  flarient-url:
+    description: 'URL to the Flarient live dashboard for full details'
+  flarient-consensus:
+    description: 'Flarient community consensus on current conditions (calm/active/storm)'
   badge-url:
     description: 'URL to a generated status badge SVG'
 
