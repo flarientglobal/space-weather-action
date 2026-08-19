@@ -1,0 +1,32 @@
+# Example: Space Weather CI Check
+# Add this to your .github/workflows/space-weather-ci.yml
+name: Space Weather CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+
+jobs:
+  space-weather-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check space weather
+        id: weather
+        uses: flarientglobal/space-weather-action@v1
+        with:
+          kp-threshold: '7'
+          flare-threshold: 'X'
+          fail-on-warning: 'false'
+          summary: 'true'
+
+      - name: Report
+        run: |
+          echo "Kp: ${{ steps.weather.outputs.kp }}"
+          echo "Storm level: ${{ steps.weather.outputs.storm-level }}"
+          echo "Flare: ${{ steps.weather.outputs.flare-class }}"
+          echo "Solar wind: ${{ steps.weather.outputs.solar-wind-speed }} km/s"
+          echo "NEOs today: ${{ steps.weather.outputs.neo-count }}"
