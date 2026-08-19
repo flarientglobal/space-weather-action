@@ -1,0 +1,66 @@
+name: 'Space Weather Check'
+description: 'Check current space weather conditions (Kp, solar wind, flares, NEOs) in your CI/CD pipeline. Fail deployments during geomagnetic storms, generate status reports, and create issues on significant events.'
+author: 'Flarient'
+branding:
+  icon: 'activity'
+  color: 'blue'
+
+inputs:
+  kp-threshold:
+    description: 'Fail the check if the Kp index is at or above this value (0-9). Set to 0 to disable.'
+    required: false
+    default: '7'
+  flare-threshold:
+    description: 'Fail the check if the X-ray flare class is at or above this level (A/B/C/M/X). Set to empty to disable.'
+    required: false
+    default: 'X'
+  solar-wind-threshold:
+    description: 'Fail the check if solar wind speed (km/s) is at or above this value. Set to 0 to disable.'
+    required: false
+    default: '0'
+  bz-threshold:
+    description: 'Fail the check if Bz (nT) is at or below this negative value (southward field). Set to 0 to disable.'
+    required: false
+    default: '0'
+  neo-hazardous-only:
+    description: 'Only count potentially hazardous NEOs in the report.'
+    required: false
+    default: 'false'
+  fail-on-warning:
+    description: 'Exit with non-zero code if any threshold is exceeded.'
+    required: false
+    default: 'true'
+  create-issue:
+    description: 'Create a GitHub issue if a significant space weather event is detected.'
+    required: false
+    default: 'false'
+  summary:
+    description: 'Add a space weather report to the GitHub Actions job summary.'
+    required: false
+    default: 'true'
+  nasa-api-key:
+    description: 'NASA API key for NeoWS (use DEMO_KEY if not set, but rate-limited).'
+    required: false
+    default: 'DEMO_KEY'
+
+outputs:
+  kp:
+    description: 'Current Kp index (0-9)'
+  flare-class:
+    description: 'Current X-ray flare class (A/B/C/M/X)'
+  solar-wind-speed:
+    description: 'Solar wind speed in km/s'
+  bz:
+    description: 'Bz magnetic field component in nT'
+  neo-count:
+    description: 'Number of near-Earth objects today'
+  has-warning:
+    description: '"true" if any configured threshold was exceeded'
+  storm-level:
+    description: 'G-scale storm level (G0-G5) derived from Kp'
+  badge-url:
+    description: 'URL to a generated status badge SVG'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
