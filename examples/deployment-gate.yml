@@ -1,0 +1,33 @@
+# Example: Deployment Gate
+# Gate deployments on space weather conditions
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check space weather
+        id: weather
+        uses: flarientglobal/space-weather-action@v1
+        with:
+          kp-threshold: '6'
+          solar-wind-threshold: '600'
+          fail-on-warning: 'true'
+
+      - name: Deploy to production
+        if: steps.weather.outputs.has-warning != 'true'
+        run: |
+          echo "Conditions are safe — deploying"
+          ./deploy.sh
+
+      - name: Notify on space weather delay
+        if: steps.weather.outputs.has-warning == 'true'
+        run: |
+          echo "::warning::Deployment delayed due to space weather (Kp: ${{ steps.weather.outputs.kp }}, Storm: ${{ steps.weather.outputs.storm-level }})"
+          exit 1
