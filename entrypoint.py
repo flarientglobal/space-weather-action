@@ -83,6 +83,43 @@ def flare_to_number(cls):
     return order.get(cls.upper(), 0)
 
 
+def aurora_probability(kp, bz=None):
+    """Estimate aurora visibility probability at mid-latitudes (50-55N).
+    Based on the relationship: higher Kp + southward Bz = higher probability."""
+    if kp is None:
+        return 0
+    # Base probability from Kp
+    if kp < 3:
+        prob = 5
+    elif kp < 4:
+        prob = 15
+    elif kp < 5:
+        prob = 35
+    elif kp < 6:
+        prob = 55
+    elif kp < 7:
+        prob = 75
+    elif kp < 8:
+        prob = 85
+    else:
+        prob = 95
+    # Bz adjustment: strongly southward Bz boosts probability
+    if bz is not None and bz < -5:
+        prob = min(95, prob + 10)
+    return prob
+
+
+def flarient_consensus(kp, flare_class):
+    """Derive a Flarient-style consensus label from current conditions."""
+    if kp is not None and kp >= 5:
+        return "storm"
+    if kp is not None and kp >= 4:
+        return "active"
+    if flare_class and flare_class in ("M", "X"):
+        return "active"
+    return "calm"
+
+
 # ── Data fetchers ───────────────────────────────────────────────────────────
 def fetch_kp():
     """Fetch the latest Kp index from NOAA SWPC."""
@@ -323,6 +360,8 @@ def main():
         log("  ✅ All conditions within thresholds")
 
     # Set outputs
+    aurora_prob = aurora_probability(kp, bz)
+    consensus = flarient_consensus(kp, flare_class)
     set_output("kp", str(kp) if kp is not None else "")
     set_output("flare-class", str(flare_class) if flare_class else "")
     set_output("solar-wind-speed", str(wind_speed) if wind_speed is not None else "")
@@ -330,6 +369,10 @@ def main():
     set_output("neo-count", str(neo_count))
     set_output("has-warning", "true" if warnings else "false")
     set_output("storm-level", storm_level)
+    set_output("aurora-probability", str(aurora_prob))
+    set_output("latest-flare", str(flare_class) if flare_class else "")
+    set_output("flarient-url", "https://flarient.com")
+    set_output("flarient-consensus", consensus)
 
     # Generate summary
     generate_summary(data, warnings)
