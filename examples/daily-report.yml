@@ -1,0 +1,21 @@
+# Example: Daily Space Weather Report
+# Generates a daily report and creates issues on significant events
+name: Daily Space Weather Report
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Daily space weather check
+        uses: flarientglobal/space-weather-action@v1
+        with:
+          kp-threshold: '5'
+          flare-threshold: 'M'
+          create-issue: 'true'
+          fail-on-warning: 'false'
+          summary: 'true'
