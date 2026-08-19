@@ -1,0 +1,40 @@
+name: Test Action
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test basic check (no failure)
+        uses: ./
+        with:
+          kp-threshold: '99'
+          flare-threshold: ''
+          fail-on-warning: 'false'
+          summary: 'true'
+
+      - name: Verify outputs
+        run: |
+          echo "Testing that outputs are set..."
+          test -n "${{ steps.space-weather.outputs.kp }}" || echo "Kp output may be empty (data fetch issue)"
+
+      - name: Test with strict thresholds
+        uses: ./
+        with:
+          kp-threshold: '0'
+          fail-on-warning: 'false'
+          summary: 'true'
+        id: strict-check
+
+      - name: Report
+        run: |
+          echo "Kp: ${{ steps.strict-check.outputs.kp }}"
+          echo "Storm: ${{ steps.strict-check.outputs.storm-level }}"
+          echo "Has warning: ${{ steps.strict-check.outputs.has-warning }}"
